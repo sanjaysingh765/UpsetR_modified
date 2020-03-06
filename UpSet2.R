@@ -12,8 +12,6 @@ library(extrafont)
 fonts() 
 loadfonts()
 
-
-
 ########################################  functions start ###############################################################
 
 ## Generate main bar plot
@@ -151,7 +149,18 @@ Make_main_bar <- function(Main_bar_data, Q, show_num, ratios, customQ, number_an
 
 
 ## Generate set size plot
-Make_size_plot <- function(Set_size_data, sbar_color, ratios, ylabel, scale_sets, text_scale, set_size_angle,set_size.show){
+Make_size_plot <- function(Set_size_data, sbar_color, ratios, ylabel, scale_sets, text_scale, set_size_angle, set_size.show, set_size.scale_max,
+                           set_size.number_size){
+  #   if(ratios[1] < 0.4){
+  #     m <- (-0.05)
+  #   }
+  #   else if((ratios[1] > 0.4) & (ratios[1] < 0.46)){
+  #     m <- (-0.03)
+  #   }
+  #   else{
+  #     m <- 0
+  #   }
+  
   if(length(text_scale) > 1 && length(text_scale) <= 6){
     x_axis_title_scale <- text_scale[3]
     x_axis_tick_label_scale <- text_scale[4]
@@ -163,7 +172,18 @@ Make_size_plot <- function(Set_size_data, sbar_color, ratios, ylabel, scale_sets
   
   if(ylabel == "Set Size" && scale_sets != "identity"){
     ylabel <- paste("Set Size", paste0("( ", scale_sets, " )"))
-
+    if(scale_sets == "log2"){
+      Set_size_data$y <- log2(Set_size_data$y)
+    }
+    if(scale_sets == "log10"){
+      Set_size_data$y <- log10(Set_size_data$y)
+    }
+  }
+  
+  if(!is.null(set_size.number_size)) {
+    num.size <- (set_size.number_size/ggplot2:::.pt)*x_axis_tick_label_scale
+  } else {
+    num.size <- (7/ggplot2:::.pt)*x_axis_tick_label_scale
   }
   #ten_perc creates appropriate space above highest bar so number doesnt get cut off
   #if(is.null(ymax) == T){
@@ -250,8 +270,8 @@ cols_m <- tail(col_vector, m)
 
 
 #create plot
-#png("gene_intersections.png", units="in", family="Times New Roman",  width=10, height=6, res=300, pointsize = 2)
-pdf("file.pdf",width=20,height=8, onefile=FALSE)  
+png("gene_intersections.png", units="in", family="Times New Roman",  width=10, height=6, res=300, pointsize = 2)
+#pdf("file.pdf",width=20,height=8, onefile=FALSE)  
 upset(
   fromList(gene_list),
   nsets = length(gene_list), # number of sets
